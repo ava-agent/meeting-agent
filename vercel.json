@@ -2,10 +2,5 @@
   "framework": "nextjs",
   "buildCommand": "npm run build",
   "devCommand": "npm run dev",
-  "installCommand": "npm install",
-  "env": {
-    "NEXT_PUBLIC_GLM_API_KEY": "@next_public_glm_api_key",
-    "NEXT_PUBLIC_CLOUDBASE_ENV_ID": "@next_public_cloudbase_env_id",
-    "NEXT_PUBLIC_APP_URL": "@next_public_app_url"
-  }
+  "installCommand": "npm install"
 }
