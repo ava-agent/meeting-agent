@@ -1,0 +1,58 @@
+{
+  "envId": "ai-native-2gknzsob14f42138",
+  "region": "ap-shanghai",
+  "$schema": "https://framework-1258016615.tcloudbaseapp.com/schema/latest.json",
+  "version": "2.0",
+  "framework": {
+    "name": "static",
+    "plugins": []
+  },
+  "build": {
+    "env": {
+      "NEXT_PUBLIC_GLM_API_KEY": {
+        "description": "智谱AI API密钥",
+        "required": false
+      },
+      "NEXT_PUBLIC_CLOUDBASE_ENV_ID": {
+        "description": "CloudBase环境ID",
+        "required": true
+      },
+      "NEXT_PUBLIC_WECHAT_APP_ID": {
+        "description": "微信应用ID",
+        "required": false
+      },
+      "NEXT_PUBLIC_APP_URL": {
+        "description": "应用URL",
+        "required": false
+      }
+    }
+  },
+  "static": {
+    "ignore": [
+      ".git",
+      ".github",
+      "node_modules",
+      ".next",
+      "src",
+      "public",
+      "*.md",
+      ".eslintrc.json",
+      ".prettierrc",
+      "tsconfig.json",
+      "tailwind.config.ts",
+      "postcss.config.mjs",
+      "next-env.d.ts",
+      "tsconfig.tsbuildinfo",
+      ".env.example",
+      ".env.local",
+      "nul"
+    ],
+    "watchPath": "out",
+    "upload": [
+      {
+        "src": "out/**",
+        "dest": "/"
+      }
+    ]
+  }
+}
