@@ -1,7 +1,7 @@
-// 会议操作 Hook
+// 会议操作 Hook (Supabase)
 
 import { useState, useCallback } from 'react'
-import { cloudbaseDB } from '@/services/cloudbase'
+import { supabaseDB } from '@/services/supabase'
 import { useAppStore } from '@/lib/store'
 import type { Meeting, MeetingFormData, GeneratedContent } from '@/types/meeting'
 
@@ -10,14 +10,15 @@ export function useMeeting() {
   const [error, setError] = useState<string | null>(null)
   const { user, meetings, setMeetings, addMeeting, updateMeeting, deleteMeeting: deleteMeetingFromStore } = useAppStore()
 
-  // 创建会议
   const createMeeting = useCallback(async (data: MeetingFormData): Promise<Meeting> => {
     setIsLoading(true)
     setError(null)
 
     try {
+      if (!user?.id) throw new Error('请先登录')
+
       const newMeeting: Omit<Meeting, 'id' | 'createdAt' | 'updatedAt'> = {
-        userId: user?.id || 'local',
+        userId: user.id,
         title: data.title,
         date: data.date,
         location: data.location,
@@ -29,9 +30,8 @@ export function useMeeting() {
         status: 'draft'
       }
 
-      const createdMeeting = await cloudbaseDB.createMeeting(newMeeting)
-      addMeeting(createdMeeting as any)
-
+      const createdMeeting = await supabaseDB.createMeeting(newMeeting)
+      addMeeting(createdMeeting)
       return createdMeeting
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : '创建会议失败'
@@ -42,19 +42,13 @@ export function useMeeting() {
     }
   }, [user, addMeeting])
 
-  // 更新会议
   const updateMeetingData = useCallback(async (id: string, updates: Partial<Meeting>): Promise<void> => {
     setIsLoading(true)
     setError(null)
 
     try {
-      // Convert Date fields to proper format for update
-      const updateData = {
-        ...updates,
-        updatedAt: new Date()
-      }
-      await cloudbaseDB.updateMeeting(id, updateData)
-      updateMeeting(id, updateData)
+      await supabaseDB.updateMeeting(id, updates)
+      updateMeeting(id, { ...updates, updatedAt: new Date() })
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : '更新会议失败'
       setError(errorMessage)
@@ -64,14 +58,13 @@ export function useMeeting() {
     }
   }, [updateMeeting])
 
-  // 更新会议生成内容
   const updateMeetingContent = useCallback(async (id: string, content: GeneratedContent): Promise<void> => {
     setIsLoading(true)
     setError(null)
 
     try {
-      await cloudbaseDB.updateMeetingContent(id, content)
-      updateMeeting(id, { generatedContent: content, updatedAt: new Date() })
+      await supabaseDB.updateMeetingContent(id, content)
+      updateMeeting(id, { generatedContent: content, status: 'completed', updatedAt: new Date() })
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : '更新内容失败'
       setError(errorMessage)
@@ -81,13 +74,12 @@ export function useMeeting() {
     }
   }, [updateMeeting])
 
-  // 删除会议
   const deleteMeeting = useCallback(async (id: string): Promise<void> => {
     setIsLoading(true)
     setError(null)
 
     try {
-      await cloudbaseDB.deleteMeeting(id)
+      await supabaseDB.deleteMeeting(id)
       deleteMeetingFromStore(id)
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : '删除会议失败'
@@ -98,15 +90,14 @@ export function useMeeting() {
     }
   }, [deleteMeetingFromStore])
 
-  // 加载用户会议列表
   const loadMeetings = useCallback(async () => {
-    if (!user) return
+    if (!user?.id) return
 
     setIsLoading(true)
     setError(null)
 
     try {
-      const userMeetings = await cloudbaseDB.getUserMeetings(user.id || 'local')
+      const userMeetings = await supabaseDB.getUserMeetings(user.id)
       setMeetings(userMeetings)
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : '加载会议列表失败'
@@ -116,14 +107,12 @@ export function useMeeting() {
     }
   }, [user, setMeetings])
 
-  // 获取会议详情
   const getMeeting = useCallback(async (id: string): Promise<Meeting | null> => {
     setIsLoading(true)
     setError(null)
 
     try {
-      const meeting = await cloudbaseDB.getMeetingById(id)
-      return meeting
+      return await supabaseDB.getMeetingById(id)
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : '获取会议详情失败'
       setError(errorMessage)

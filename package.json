@@ -21,6 +21,8 @@
     "@cloudbase/js-sdk": "^2.25.4",
     "@hookform/resolvers": "^5.2.2",
     "@next/font": "^14.0.4",
+    "@supabase/ssr": "^0.8.0",
+    "@supabase/supabase-js": "^2.95.3",
     "antd": "^5.12.8",
     "axios": "^1.6.5",
     "date-fns": "^4.1.0",

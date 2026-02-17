@@ -1,184 +1,202 @@
-# 一站式会议助手 - Next.js现代化版本
+# AI 会议助手 (Meeting Assistant)
 
-基于Next.js 14 + Ant Design 5.x + TypeScript + Zustand构建的现代化AI会议策划平台。
+> 一站式 AI 驱动的会议策划平台，一键生成议程、演讲稿、海报和伴手礼推荐
 
-## 🚀 技术栈
+**在线体验**: https://meeting.rxcloud.group
 
-- **前端框架**: Next.js 14 (App Router)
-- **UI组件库**: Ant Design 5.x + Tailwind CSS
-- **状态管理**: Zustand 4.x
-- **语言**: TypeScript 5.x
-- **样式**: Tailwind CSS + Ant Design主题定制
-- **HTTP客户端**: Axios
-- **代码质量**: ESLint + Prettier
+## 功能特性
 
-## 📦 项目结构
+- **AI 内容生成** - 议程、演讲稿、海报设计方案、伴手礼推荐（GLM-4-flash）
+- **用户认证** - 邮箱注册/登录、匿名体验（Supabase Auth）
+- **会议管理** - 创建、编辑、删除、归档（Supabase PostgreSQL + RLS）
+- **多格式导出** - PDF、Word、图片
+- **响应式设计** - 完整移动端支持
 
-```
-ai-meeting-web-next/
-├── src/
-│   ├── app/                    # Next.js App Router
-│   │   ├── layout.tsx         # 根布局
-│   │   ├── page.tsx           # 主页重定向
-│   │   ├── globals.css        # 全局样式
-│   │   └── home/              # 首页路由
-│   ├── components/            # React组件
-│   │   ├── providers/         # 提供者组件
-│   │   └── pages/            # 页面组件
-│   ├── lib/                   # 工具库
-│   │   ├── store.ts           # Zustand状态管理
-│   │   └── antd-theme.ts      # Ant Design主题配置
-│   └── types/                 # TypeScript类型定义
-├── public/                    # 静态资源
-├── tailwind.config.ts         # Tailwind配置
-├── next.config.js             # Next.js配置
-├── tsconfig.json              # TypeScript配置
-├── .eslintrc.json             # ESLint配置
-└── .prettierrc               # Prettier配置
-```
+## 技术栈
 
-## 🛠️ 开发环境设置
+| 层级 | 技术 |
+|------|------|
+| 前端框架 | Next.js 14 (App Router) |
+| UI 组件库 | Ant Design 5.x + Tailwind CSS |
+| 状态管理 | Zustand 4.x (localStorage 持久化) |
+| 数据库 | Supabase PostgreSQL (RLS 行级安全) |
+| 认证 | Supabase Auth (邮箱 + 匿名登录) |
+| AI 模型 | Zhipu GLM-4-flash (服务端调用) |
+| 语言 | TypeScript 5.x |
+| 测试 | Vitest + @testing-library/react |
+| 部署 | Vercel |
 
-### 安装依赖
+## 快速开始
+
+### 1. 克隆并安装依赖
 
 ```bash
+git clone https://github.com/ava-agent/meeting-agent.git
+cd meeting-agent
 npm install
 ```
 
-### 启动开发服务器
+### 2. 配置环境变量
+
+复制示例文件并填写实际值：
+
+```bash
+cp .env.example .env.local
+```
+
+编辑 `.env.local`：
+
+```env
+# Supabase 配置 (必填)
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+# GLM API Key (服务端私有，必填)
+# 获取地址: https://open.bigmodel.cn/
+GLM_API_KEY=your_glm_api_key
+
+# 应用地址
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
+
+> **安全说明**: `GLM_API_KEY` 不加 `NEXT_PUBLIC_` 前缀，仅在服务端 API Route 中使用，不会暴露给浏览器。
+
+### 3. 启动开发服务器
 
 ```bash
 npm run dev
 ```
 
-应用将在 `http://localhost:3000` 启动。
+访问 http://localhost:3000
 
-### 构建生产版本
-
-```bash
-npm run build
-npm run start
-```
-
-## 🎨 设计系统
-
-### 颜色系统
-- **Primary**: 蓝色系 (#2563eb)
-- **Secondary**: 天蓝色系 (#0ea5e9)
-- **Accent**: 紫色系 (#d946ef)
-
-### 组件风格
-- **圆角**: 12px (基础), 8px (小), 16px (大)
-- **阴影**: 柔和的阴影效果，增强层次感
-- **动画**: 平滑的过渡和微交互
-
-## 📋 开发规范
-
-### 组件命名
-- PascalCase: `Button`, `Card`, `Modal`
-- 文件名: kebab-case: `button.tsx`, `user-card.tsx`
-
-### 代码风格
-- 使用ESLint和Prettier统一代码格式
-- 优先使用TypeScript类型定义
-- 遵循React最佳实践
-
-### Git提交规范
-```bash
-feat: 新功能
-fix: 修复bug
-docs: 文档更新
-style: 代码格式调整
-refactor: 代码重构
-test: 测试相关
-chore: 构建工具或辅助工具的变动
-```
-
-## 🔧 核心功能
-
-### AI会议策划
-- 智能会议议程生成
-- AI演讲稿撰写
-- 会议海报设计
-- 伴手礼推荐
-
-### 用户系统
-- 用户注册登录
-- 会议历史管理
-- 个性化设置
-
-### 响应式设计
-- 桌面端优化
-- 平板适配
-- 移动端友好
-
-## 🚀 CloudBase 部署
-
-### 已部署环境
-
-- **静态托管URL**: https://ai-native-2gknzsob14f42138-1255322707.tcloudbaseapp.com/
-- **环境ID**: ai-native-2gknzsob14f42138
-- **区域**: ap-shanghai
-- **状态**: 已上线 ✅
-
-### 部署说明
-
-本项目已部署到腾讯云 CloudBase 静态托管，包含以下功能：
-
-1. **用户认证**: 邮箱登录/注册（CloudBase 匿名认证）
-2. **会议管理**: 创建、编辑、删除会议（数据持久化到 CloudBase NoSQL 数据库）
-3. **AI 内容生成**: GLM-4.7 API 集成（议程、演讲稿、海报、伴手礼）
-4. **数据持久化**: 三个数据库集合
-   - `ai_meeting_users` - 用户数据
-   - `ai_meeting_meetings` - 会议数据
-   - `ai_meeting_generations` - AI 生成记录
-
-### 本地开发
+## 常用命令
 
 ```bash
-npm run dev
+npm run dev          # 开发服务器
+npm run build        # 生产构建
+npm run start        # 启动生产服务器
+npm run lint         # ESLint 检查
+npm run lint:fix     # ESLint 自动修复
+npm run type-check   # TypeScript 类型检查
+npm run format       # Prettier 格式化
+npm run test         # 运行测试
+npm run test:coverage # 测试覆盖率
 ```
 
-### 构建生产版本
+## 项目结构
+
+```
+src/
+├── app/
+│   ├── (auth)/          # 登录/注册页面
+│   ├── (dashboard)/     # 控制台和会议列表
+│   ├── api/
+│   │   └── ai/generate/ # 服务端 AI 生成路由 (GLM 代理)
+│   ├── home/            # 首页
+│   └── planner/         # 4 步会议策划向导
+├── components/
+│   ├── auth/            # 登录/注册表单
+│   ├── meeting/         # 会议策划器、详情
+│   └── pages/           # 页面级组件
+├── hooks/
+│   ├── useAuth.ts       # 认证状态管理
+│   ├── useMeeting.ts    # 会议 CRUD 操作
+│   └── useAI.ts         # AI 生成 (调用 /api/ai/generate)
+├── services/
+│   ├── supabase/        # Supabase auth + database 服务
+│   └── ai/              # 提示词模板、AI 服务接口
+├── lib/
+│   ├── supabase.ts      # Supabase 客户端初始化
+│   ├── store.ts         # Zustand 全局状态
+│   └── utils.ts         # 工具函数
+└── types/               # TypeScript 类型定义
+```
+
+## Supabase 数据库结构
+
+```sql
+-- 用户配置文件 (关联 auth.users)
+profiles (id, email, name, avatar_url, role, created_at, updated_at)
+
+-- 会议记录
+meetings (id, user_id, title, date, location, description,
+          attendees, budget, type, duration, status,
+          generated_content, created_at, updated_at)
+
+-- AI 生成日志
+ai_generations (id, meeting_id, user_id, type, content,
+                prompt, model, tokens, created_at)
+```
+
+所有表均启用 RLS（行级安全策略），用户只能访问自己的数据。
+
+## 部署到 Vercel
+
+### 方式一：Vercel 控制台
+
+1. 前往 [Vercel Dashboard](https://vercel.com/dashboard)
+2. 导入 `https://github.com/ava-agent/meeting-agent`
+3. 在 **Settings → Environment Variables** 添加：
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `GLM_API_KEY`
+   - `NEXT_PUBLIC_APP_URL` = `https://meeting.rxcloud.group`
+4. 点击 **Deploy**
+
+### 方式二：Vercel CLI
 
 ```bash
-npm run build
+# 安装 CLI
+npm i -g vercel
+
+# 部署
+vercel --prod
 ```
 
-静态导出文件将生成在 `out/` 目录。
+### 自定义域名
 
-### 重新部署
+在 Vercel 控制台 **Settings → Domains** 添加 `meeting.rxcloud.group`，然后在 DNS 提供商处添加对应 CNAME 记录。
+
+## Supabase 配置
+
+### 初始化数据库
+
+数据库迁移通过 Supabase MCP 已执行。如需重新初始化，在 Supabase SQL Editor 运行 `migrations/` 目录下的 SQL 文件。
+
+### 开启匿名登录
+
+在 Supabase Dashboard → **Authentication → Providers** 中开启 **Anonymous sign-ins**。
+
+## AI 生成架构
+
+```
+浏览器 → useAI.ts → POST /api/ai/generate → GLM API
+                          (服务端路由)
+                     [GLM_API_KEY 仅在此处使用]
+```
+
+AI 生成通过 Next.js API Route 代理，API Key 永远不会暴露到客户端。
+
+## 测试
 
 ```bash
-npm run build
-# 然后使用 CloudBase CLI 或 MCP 工具上传 out/ 目录
+# 运行所有测试
+npm run test
+
+# 查看覆盖率报告
+npm run test:coverage
 ```
 
-## 📊 性能优化
+测试覆盖率要求：
+- 语句覆盖率 ≥ 80%
+- 函数覆盖率 ≥ 80%
+- 分支覆盖率 ≥ 70%
 
-- **服务端渲染**: Next.js自动优化
-- **图片优化**: Next.js Image组件
-- **代码分割**: 自动路由分割
-- **缓存策略**: 智能缓存管理
-- **懒加载**: 组件和图片懒加载
+## 环境要求
 
-## 🔒 安全考虑
+- Node.js >= 18.0.0
+- npm >= 9.0.0
 
-- **环境变量**: 敏感信息使用环境变量
-- **数据验证**: 前后端数据验证
-- **XSS防护**: Next.js内置防护
-- **CSRF防护**: API路由防护
+## License
 
-## 🤝 贡献指南
-
-1. Fork项目
-2. 创建特性分支: `git checkout -b feature/amazing-feature`
-3. 提交更改: `git commit -m 'Add amazing feature'`
-4. 推送分支: `git push origin feature/amazing-feature`
-5. 提交Pull Request
-
-## 📄 许可证
-
-本项目采用MIT许可证。
-
-
+MIT

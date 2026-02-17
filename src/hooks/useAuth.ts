@@ -1,44 +1,57 @@
-// 认证 Hook
+// 认证 Hook (Supabase)
 
 import { useState, useEffect } from 'react'
-import { cloudbaseAuth } from '@/services/cloudbase'
+import { supabase } from '@/lib/supabase'
+import { supabaseAuth } from '@/services/supabase'
+import { useAppStore } from '@/lib/store'
 import type { User, LoginCredentials, RegisterData } from '@/types/user'
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const { setUser: setStoreUser, setAuthenticated } = useAppStore()
 
-  // 初始化：检查登录状态
   useEffect(() => {
-    checkAuthState()
-  }, [])
-
-  const checkAuthState = async () => {
-    setIsLoading(true)
-    try {
-      const currentUser = await cloudbaseAuth.getCurrentUser()
+    // 初始化：获取当前会话
+    supabaseAuth.getCurrentUser().then((currentUser) => {
       setUser(currentUser)
       setIsAuthenticated(!!currentUser)
-    } catch (error) {
-      console.error('检查登录状态失败:', error)
-      setUser(null)
-      setIsAuthenticated(false)
-    } finally {
+      setStoreUser(currentUser)
+      setAuthenticated(!!currentUser)
       setIsLoading(false)
-    }
-  }
+    }).catch(() => {
+      setIsLoading(false)
+    })
+
+    // 监听 Supabase 认证状态变化
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_OUT' || !session) {
+        setUser(null)
+        setIsAuthenticated(false)
+        setStoreUser(null)
+        setAuthenticated(false)
+      } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        const currentUser = await supabaseAuth.getCurrentUser()
+        setUser(currentUser)
+        setIsAuthenticated(!!currentUser)
+        setStoreUser(currentUser)
+        setAuthenticated(!!currentUser)
+      }
+    })
+
+    return () => subscription.unsubscribe()
+  }, [setStoreUser, setAuthenticated])
 
   const login = async (credentials: LoginCredentials): Promise<User> => {
     setIsLoading(true)
     try {
-      const loggedInUser = await cloudbaseAuth.emailLogin(credentials)
+      const loggedInUser = await supabaseAuth.emailLogin(credentials)
       setUser(loggedInUser)
       setIsAuthenticated(true)
+      setStoreUser(loggedInUser)
+      setAuthenticated(true)
       return loggedInUser
-    } catch (error) {
-      setIsLoading(false)
-      throw error
     } finally {
       setIsLoading(false)
     }
@@ -47,13 +60,12 @@ export function useAuth() {
   const register = async (data: RegisterData): Promise<User> => {
     setIsLoading(true)
     try {
-      const newUser = await cloudbaseAuth.emailRegister(data)
+      const newUser = await supabaseAuth.emailRegister(data)
       setUser(newUser)
       setIsAuthenticated(true)
+      setStoreUser(newUser)
+      setAuthenticated(true)
       return newUser
-    } catch (error) {
-      setIsLoading(false)
-      throw error
     } finally {
       setIsLoading(false)
     }
@@ -62,9 +74,11 @@ export function useAuth() {
   const logout = async () => {
     setIsLoading(true)
     try {
-      await cloudbaseAuth.logout()
+      await supabaseAuth.logout()
       setUser(null)
       setIsAuthenticated(false)
+      setStoreUser(null)
+      setAuthenticated(false)
     } catch (error) {
       console.error('登出失败:', error)
     } finally {
@@ -75,13 +89,26 @@ export function useAuth() {
   const anonymousLogin = async (): Promise<User> => {
     setIsLoading(true)
     try {
-      const anonUser = await cloudbaseAuth.anonymousLogin()
+      const anonUser = await supabaseAuth.anonymousLogin()
       setUser(anonUser)
       setIsAuthenticated(true)
+      setStoreUser(anonUser)
+      setAuthenticated(true)
       return anonUser
-    } catch (error) {
+    } finally {
       setIsLoading(false)
-      throw error
+    }
+  }
+
+  const checkAuthState = async () => {
+    setIsLoading(true)
+    try {
+      const currentUser = await supabaseAuth.getCurrentUser()
+      setUser(currentUser)
+      setIsAuthenticated(!!currentUser)
+    } catch {
+      setUser(null)
+      setIsAuthenticated(false)
     } finally {
       setIsLoading(false)
     }
