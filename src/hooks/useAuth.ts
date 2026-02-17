@@ -13,14 +13,32 @@ export function useAuth() {
   const { setUser: setStoreUser, setAuthenticated } = useAppStore()
 
   useEffect(() => {
+    // 初始化：先检查访客会话
+    const guestStored = typeof window !== 'undefined' ? localStorage.getItem('guest_user') : null
+
     // 初始化：获取当前会话
     supabaseAuth.getCurrentUser().then((currentUser) => {
-      setUser(currentUser)
-      setIsAuthenticated(!!currentUser)
-      setStoreUser(currentUser)
-      setAuthenticated(!!currentUser)
+      if (currentUser) {
+        setUser(currentUser)
+        setIsAuthenticated(true)
+        setStoreUser(currentUser)
+        setAuthenticated(true)
+      } else if (guestStored) {
+        const guestUser = JSON.parse(guestStored) as User
+        setUser(guestUser)
+        setIsAuthenticated(true)
+        setStoreUser(guestUser)
+        setAuthenticated(true)
+      }
       setIsLoading(false)
     }).catch(() => {
+      if (guestStored) {
+        const guestUser = JSON.parse(guestStored) as User
+        setUser(guestUser)
+        setIsAuthenticated(true)
+        setStoreUser(guestUser)
+        setAuthenticated(true)
+      }
       setIsLoading(false)
     })
 
@@ -74,7 +92,10 @@ export function useAuth() {
   const logout = async () => {
     setIsLoading(true)
     try {
-      await supabaseAuth.logout()
+      await supabaseAuth.logout().catch(() => {})
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('guest_user')
+      }
       setUser(null)
       setIsAuthenticated(false)
       setStoreUser(null)
@@ -86,15 +107,24 @@ export function useAuth() {
     }
   }
 
+  // 访客模式：本地会话，无需 Supabase 注册
   const anonymousLogin = async (): Promise<User> => {
     setIsLoading(true)
     try {
-      const anonUser = await supabaseAuth.anonymousLogin()
-      setUser(anonUser)
+      const stored = typeof window !== 'undefined' ? localStorage.getItem('guest_user') : null
+      const guestUser: User = stored
+        ? JSON.parse(stored) as User
+        : { id: `guest_${Date.now()}`, name: '访客', role: 'user', email: '' }
+
+      if (!stored) {
+        localStorage.setItem('guest_user', JSON.stringify(guestUser))
+      }
+
+      setUser(guestUser)
       setIsAuthenticated(true)
-      setStoreUser(anonUser)
+      setStoreUser(guestUser)
       setAuthenticated(true)
-      return anonUser
+      return guestUser
     } finally {
       setIsLoading(false)
     }

@@ -10,6 +10,8 @@ export function useMeeting() {
   const [error, setError] = useState<string | null>(null)
   const { user, meetings, setMeetings, addMeeting, updateMeeting, deleteMeeting: deleteMeetingFromStore } = useAppStore()
 
+  const isGuest = !!user?.id?.startsWith('guest_')
+
   const createMeeting = useCallback(async (data: MeetingFormData): Promise<Meeting> => {
     setIsLoading(true)
     setError(null)
@@ -30,6 +32,18 @@ export function useMeeting() {
         status: 'draft'
       }
 
+      // 访客模式：仅本地存储
+      if (isGuest) {
+        const localMeeting: Meeting = {
+          ...newMeeting,
+          id: `local_${Date.now()}`,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        }
+        addMeeting(localMeeting)
+        return localMeeting
+      }
+
       const createdMeeting = await supabaseDB.createMeeting(newMeeting)
       addMeeting(createdMeeting)
       return createdMeeting
@@ -40,7 +54,7 @@ export function useMeeting() {
     } finally {
       setIsLoading(false)
     }
-  }, [user, addMeeting])
+  }, [user, isGuest, addMeeting])
 
   const updateMeetingData = useCallback(async (id: string, updates: Partial<Meeting>): Promise<void> => {
     setIsLoading(true)
@@ -56,14 +70,16 @@ export function useMeeting() {
     } finally {
       setIsLoading(false)
     }
-  }, [updateMeeting])
+  }, [isGuest, updateMeeting])
 
   const updateMeetingContent = useCallback(async (id: string, content: GeneratedContent): Promise<void> => {
     setIsLoading(true)
     setError(null)
 
     try {
-      await supabaseDB.updateMeetingContent(id, content)
+      if (!isGuest) {
+        await supabaseDB.updateMeetingContent(id, content)
+      }
       updateMeeting(id, { generatedContent: content, status: 'completed', updatedAt: new Date() })
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : '更新内容失败'
@@ -72,14 +88,16 @@ export function useMeeting() {
     } finally {
       setIsLoading(false)
     }
-  }, [updateMeeting])
+  }, [isGuest, updateMeeting])
 
   const deleteMeeting = useCallback(async (id: string): Promise<void> => {
     setIsLoading(true)
     setError(null)
 
     try {
-      await supabaseDB.deleteMeeting(id)
+      if (!isGuest) {
+        await supabaseDB.deleteMeeting(id)
+      }
       deleteMeetingFromStore(id)
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : '删除会议失败'
@@ -88,10 +106,12 @@ export function useMeeting() {
     } finally {
       setIsLoading(false)
     }
-  }, [deleteMeetingFromStore])
+  }, [isGuest, deleteMeetingFromStore])
 
   const loadMeetings = useCallback(async () => {
     if (!user?.id) return
+    // 访客模式：会议已在 Zustand 本地状态，无需从 DB 加载
+    if (isGuest) return
 
     setIsLoading(true)
     setError(null)
@@ -105,7 +125,7 @@ export function useMeeting() {
     } finally {
       setIsLoading(false)
     }
-  }, [user, setMeetings])
+  }, [user, isGuest, setMeetings])
 
   const getMeeting = useCallback(async (id: string): Promise<Meeting | null> => {
     setIsLoading(true)
