@@ -2,10 +2,13 @@
 
 import { Button, Card, Typography, Row, Col, Space, Avatar } from 'antd'
 import { Sparkles, FileText, Image, Calendar, Gift, Users, CheckCircle, Star } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 const { Title, Paragraph } = Typography
 
 export function HomePage() {
+  const router = useRouter()
+
   const features = [
     {
       icon: Sparkles,
@@ -78,6 +81,24 @@ export function HomePage() {
 
   return (
     <div className="min-h-screen">
+      {/* 导航栏 */}
+      <nav className="bg-white/95 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push('/home')}>
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                <span className="text-white text-sm font-bold">AI</span>
+              </div>
+              <span className="font-bold text-gray-900 text-lg">会议助手</span>
+            </div>
+            <Space>
+              <Button onClick={() => router.push('/login')}>登录</Button>
+              <Button type="primary" onClick={() => router.push('/register')}>免费注册</Button>
+            </Space>
+          </div>
+        </div>
+      </nav>
+
       {/* Hero Section */}
       <section className="hero-gradient text-white section-padding">
         <div className="max-w-7xl mx-auto container-padding">
@@ -102,6 +123,7 @@ export function HomePage() {
               <Button
                 type="primary"
                 size="large"
+                onClick={() => router.push('/register')}
                 className="bg-white text-primary-600 hover:bg-gray-50 font-bold text-lg px-10 py-6 rounded-2xl h-auto border-none"
               >
                 🚀 免费开始使用
@@ -109,9 +131,10 @@ export function HomePage() {
               <Button
                 ghost
                 size="large"
+                onClick={() => router.push('/login')}
                 className="text-lg px-10 py-6 rounded-2xl h-auto border-2 border-white text-white hover:bg-white hover:text-primary-600"
               >
-                📋 浏览模板
+                📋 立即体验
               </Button>
             </Space>
 
@@ -249,6 +272,7 @@ export function HomePage() {
               <Button
                 type="primary"
                 size="large"
+                onClick={() => router.push('/register')}
                 className="bg-white text-primary-600 hover:bg-gray-50 font-bold text-lg px-12 py-6 rounded-2xl h-auto"
               >
                 🎯 立即注册，免费体验
@@ -256,6 +280,7 @@ export function HomePage() {
               <Button
                 ghost
                 size="large"
+                onClick={() => router.push('/login')}
                 className="text-lg px-12 py-6 rounded-2xl h-auto border-2 border-white text-white hover:bg-white hover:text-primary-600"
               >
                 ✨ 快速体验

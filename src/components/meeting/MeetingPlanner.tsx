@@ -66,7 +66,7 @@ export function MeetingPlanner() {
         // 创建会议记录
         setIsCreating(true)
         const meeting = await createMeeting(values)
-        setCreatedMeetingId(meeting._id || null)
+        setCreatedMeetingId(meeting.id || meeting._id || null)
         setIsCreating(false)
       }
 
@@ -438,7 +438,24 @@ export function MeetingPlanner() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* 顶部进度条 */}
+      {/* 顶部导航 */}
+      <div className="bg-white border-b sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-14">
+            <button
+              onClick={() => router.push('/dashboard')}
+              className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900"
+            >
+              <ArrowLeft size={16} />
+              返回控制台
+            </button>
+            <span className="font-semibold text-gray-900">新建会议策划</span>
+            <div className="w-24" />
+          </div>
+        </div>
+      </div>
+
+      {/* 步骤进度 */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <Steps current={currentStep}>
